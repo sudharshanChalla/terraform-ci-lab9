@@ -75,7 +75,7 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: peter-evans/create-or-update-comment@v4
         with:
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }} # <-- Add your PAT as secret
+          token: ${{ secrets.TERRAFORMCI_PAT }}   # <-- Use your PAT here
           issue-number: ${{ github.event.pull_request.number }}
           body: |
             **Terraform plan summary** — run #${{ github.run_number }}
