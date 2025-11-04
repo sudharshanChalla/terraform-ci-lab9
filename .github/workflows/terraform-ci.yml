@@ -60,3 +60,10 @@ jobs:
         with:
           name: tf-plan-9711
           path: plan.txt
+- name: Extract plan summary (last 20 lines)
+  id: extract
+  run: |
+    SUMMARY=$(tail -n 20 plan.txt || true)
+    echo "summary<<EOF" >> $GITHUB_OUTPUT
+    echo "$SUMMARY" >> $GITHUB_OUTPUT
+    echo "EOF" >> $GITHUB_OUTPUT
