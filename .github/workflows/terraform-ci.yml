@@ -1,5 +1,4 @@
 # Full working Terraform CI workflow with artifact and plan summary
-
 name: terraform-ci
 
 on:
@@ -10,6 +9,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
   id-token: write
 
 jobs:
