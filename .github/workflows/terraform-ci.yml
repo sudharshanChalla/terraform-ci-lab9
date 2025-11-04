@@ -8,7 +8,7 @@ on:
     branches: [ "main" ]
 
 permissions:
-  contents: read
+  contents: write  # <-- Must be write to allow commenting
   id-token: write
 
 jobs:
@@ -75,7 +75,7 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: peter-evans/create-or-update-comment@v4
         with:
-          token: ${{ secrets.TERRAFORMCI_PAT }}   # <-- Use your PAT here
+          token: ${{ secrets.TERRAFORMCI_PAT }}   # <-- Must match your PAT secret name
           issue-number: ${{ github.event.pull_request.number }}
           body: |
             **Terraform plan summary** — run #${{ github.run_number }}
