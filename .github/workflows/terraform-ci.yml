@@ -1,4 +1,4 @@
-# Updated Full working Terraform CI workflow with artifact and plan summary
+# Updated Full working Terraform CI workflow with artifact and plan summary using OIDC role
 name: terraform-ci
 
 on:
@@ -8,7 +8,7 @@ on:
     branches: [ "main" ]
 
 permissions:
-  contents: write  # <-- Must be write to allow commenting
+  contents: write  # Must be write to allow commenting
   id-token: write
 
 jobs:
@@ -24,11 +24,10 @@ jobs:
         with:
           terraform_version: 1.8.0
 
-      - name: Configure AWS credentials
+      - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: arn:aws:iam::779846785601:role/TerraformCI-Role
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
       - name: Warmup artifact (quick check that artifacts work)
@@ -75,7 +74,7 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: peter-evans/create-or-update-comment@v4
         with:
-          token: ${{ secrets.TERRAFORMCI_PAT }}   # <-- Must match your PAT secret name
+          token: ${{ secrets.TERRAFORMCI_PAT }}   # Must match your PAT secret name
           issue-number: ${{ github.event.pull_request.number }}
           body: |
             **Terraform plan summary** — run #${{ github.run_number }}
