@@ -1,4 +1,4 @@
-# Updated workflow for artifact upload
+# Full working Terraform CI workflow with artifact and plan summary
 name: terraform-ci
 
 on:
@@ -61,21 +61,23 @@ jobs:
           name: tf-plan-9711
           path: plan.txt
 
-- name: Extract plan summary (last 20 lines)
-  id: extract
-  run: |
-    SUMMARY=$(tail -n 20 plan.txt || true)
-    echo "summary<<EOF" >> $GITHUB_OUTPUT
-    echo "$SUMMARY" >> $GITHUB_OUTPUT
-    echo "EOF" >> $GITHUB_OUTPUT
+      # Step 7a: Extract last 20 lines of plan.txt
+      - name: Extract plan summary (last 20 lines)
+        id: extract
+        run: |
+          SUMMARY=$(tail -n 20 plan.txt || true)
+          echo "summary<<EOF" >> $GITHUB_OUTPUT
+          echo "$SUMMARY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
-- name: Comment plan summary on PR
-  if: github.event_name == 'pull_request'
-  uses: peter-evans/create-or-update-comment@v4
-  with:
-    issue-number: ${{ github.event.pull_request.number }}
-    body: |
-      **Terraform plan summary** — run #${{ github.run_number }}
-      ```terraform
-      ${{ steps.extract.outputs.summary }}
-      ```
+      # Step 7b: Post Terraform plan summary as PR comment
+      - name: Comment plan summary on PR
+        if: github.event_name == 'pull_request'
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            **Terraform plan summary** — run #${{ github.run_number }}
+            ```terraform
+            ${{ steps.extract.outputs.summary }}
+            ```
