@@ -1,4 +1,5 @@
 # Full working Terraform CI workflow with artifact and plan summary
+
 name: terraform-ci
 
 on:
