@@ -1,11 +1,24 @@
+name: terraform-ci
+
+on:
+  pull_request:
+    branches: [ "main" ]
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
-  terraform:
+  fmt-validate-plan:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Terraform
+      - name: Setup Terraform CLI
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.8.0
@@ -17,14 +30,32 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
-      - name: Terraform Format
-        run: terraform fmt -check
+      - name: Warmup artifact (quick check that artifacts work)
+        run: |
+          echo "hello from CI run $GITHUB_RUN_ID" > hello-9711.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hello-9711
+          path: hello-9711.txt
+
+      - name: Terraform FMT (enforce style)
+        run: terraform fmt -check -recursive
 
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -input=false
 
       - name: Terraform Validate
-        run: terraform validate
+        run: terraform validate -no-color
 
-      - name: Terraform Plan
-        run: terraform plan
+      - name: Terraform Plan (save binary)
+        run: terraform plan -no-color -out=tfplan.bin
+
+      - name: Terraform Show → plan.txt (full)
+        run: terraform show -no-color tfplan.bin | tee plan.txt
+
+      - name: Upload Plan Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tf-plan-9711
+          path: plan.txt
