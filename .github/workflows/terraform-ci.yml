@@ -60,6 +60,7 @@ jobs:
         with:
           name: tf-plan-9711
           path: plan.txt
+
 - name: Extract plan summary (last 20 lines)
   id: extract
   run: |
@@ -67,3 +68,14 @@ jobs:
     echo "summary<<EOF" >> $GITHUB_OUTPUT
     echo "$SUMMARY" >> $GITHUB_OUTPUT
     echo "EOF" >> $GITHUB_OUTPUT
+
+- name: Comment plan summary on PR
+  if: github.event_name == 'pull_request'
+  uses: peter-evans/create-or-update-comment@v4
+  with:
+    issue-number: ${{ github.event.pull_request.number }}
+    body: |
+      **Terraform plan summary** — run #${{ github.run_number }}
+      ```terraform
+      ${{ steps.extract.outputs.summary }}
+      ```
