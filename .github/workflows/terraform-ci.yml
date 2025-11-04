@@ -1,3 +1,4 @@
+# Updated workflow for artifact upload
 name: terraform-ci
 
 on:
